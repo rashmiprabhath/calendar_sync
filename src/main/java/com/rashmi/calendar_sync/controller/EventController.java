@@ -6,6 +6,7 @@ import com.rashmi.calendar_sync.dto.response.EventResponseDto;
 import com.rashmi.calendar_sync.dto.response.mepper.EventResponseMapper;
 import com.rashmi.calendar_sync.entity.Event;
 import com.rashmi.calendar_sync.service.EventService;
+import com.rashmi.calendar_sync.service.google.CalendarSyncService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,8 @@ public class EventController {
     private final EventMapper eventMapper;
 
     private final EventResponseMapper eventResponseMapper;
+
+    private final CalendarSyncService calendarSyncService;
 
     @GetMapping
     public List<EventResponseDto> getEvents(@RequestParam(required = false) LocalDate startDate, @RequestParam(required = false) LocalDate endDate) {
@@ -51,5 +54,15 @@ public class EventController {
     @DeleteMapping("/{id}")
     public String deleteEvent(@PathParam(value = "id") Long id) {
         return this.eventService.deleteEvent(id);
+    }
+
+    @PostMapping("/sync")
+    public String syncEvents() {
+        try {
+            this.calendarSyncService.syncUnSyncedEvents();
+            return "Successfully synced!";
+        } catch (Exception e) {
+            return "Failed: " + e;
+        }
     }
 }
