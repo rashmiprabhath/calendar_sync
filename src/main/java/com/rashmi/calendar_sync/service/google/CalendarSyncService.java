@@ -6,6 +6,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.rashmi.calendar_sync.entity.Event;
 import com.rashmi.calendar_sync.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
@@ -14,6 +15,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CalendarSyncService {
+
+    @Value("${google.calendar.timezone.default:America/New_York}")
+    private String defaultTimeZone;
 
     private final EventRepository eventRepository;
     private final GoogleCalendarService googleCalendarService;
@@ -28,13 +32,22 @@ public class CalendarSyncService {
                     .setSummary(event.getTitle())
                     .setDescription(event.getDescription());
 
-            DateTime startDateTime = new DateTime(event.getStartTime().atZone(ZoneId.of(event.getTimeZone())).toInstant().toEpochMilli());
+            ZoneId zoneId;
+            if (event.getTimeZone() == null) {
+                event.setTimeZone(defaultTimeZone);
+                zoneId = ZoneId.of(defaultTimeZone);
+            } else {
+                zoneId = ZoneId.of(event.getTimeZone());
+            }
+
+
+            DateTime startDateTime = new DateTime(event.getStartTime().atZone(zoneId).toInstant().toEpochMilli());
             EventDateTime start = new EventDateTime()
                     .setDateTime(startDateTime)
                     .setTimeZone(event.getTimeZone());
             googleEvent.setStart(start);
 
-            DateTime endDateTime = new DateTime(event.getEndTime().atZone(ZoneId.of(event.getTimeZone())).toInstant().toEpochMilli());
+            DateTime endDateTime = new DateTime(event.getEndTime().atZone(zoneId).toInstant().toEpochMilli());
             EventDateTime end = new EventDateTime()
                     .setDateTime(endDateTime)
                     .setTimeZone(event.getTimeZone());
