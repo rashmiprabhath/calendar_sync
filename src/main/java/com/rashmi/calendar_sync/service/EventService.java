@@ -62,4 +62,13 @@ public class EventService {
     public String deleteEvent(Long id) {
         return "we do not support event delete!";
     }
+
+    public List<Event> getEventsByDateRange(LocalDateTime start, LocalDateTime end) {
+        return eventRepository.findByStartTimeBetween(start, end);
+    }
+
+    public void saveAll(List<Event> events) {
+        eventRepository.saveAll(events);
+    }
+
 }
