@@ -2,6 +2,7 @@ package com.rashmi.calendar_sync.dto.request.mapper;
 
 import com.rashmi.calendar_sync.dto.request.EventDto;
 import com.rashmi.calendar_sync.entity.Event;
+import com.rashmi.calendar_sync.service.google.GoogleCalendarService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,6 +14,7 @@ public class EventMapper {
         event.setDescription(dto.getDescription());
         event.setStartTime(dto.getStartTime());
         event.setEndTime(dto.getEndTime());
+        event.setCalendarId(GoogleCalendarService.PRIMARY_CALENDAR_ID);
         event.setTimeZone(dto.getTimeZone());
         return event;
     }

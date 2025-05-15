@@ -6,6 +6,7 @@ import com.rashmi.calendar_sync.dto.response.EventResponseDto;
 import com.rashmi.calendar_sync.dto.response.mepper.EventResponseMapper;
 import com.rashmi.calendar_sync.entity.Event;
 import com.rashmi.calendar_sync.service.EventService;
+import com.rashmi.calendar_sync.service.google.CalendarFetchService;
 import com.rashmi.calendar_sync.service.google.CalendarSyncService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,8 @@ public class EventController {
     private final EventResponseMapper eventResponseMapper;
 
     private final CalendarSyncService calendarSyncService;
+
+    private final CalendarFetchService calendarFetchService;
 
     @GetMapping
     public List<EventResponseDto> getEvents(@RequestParam(required = false) LocalDate startDate, @RequestParam(required = false) LocalDate endDate) {
@@ -60,7 +63,17 @@ public class EventController {
     public String syncEvents() {
         try {
             this.calendarSyncService.syncUnSyncedEvents();
-            return "Successfully synced!";
+            return "Successfully synced events to calendar!";
+        } catch (Exception e) {
+            return "Failed: " + e;
+        }
+    }
+
+    @PostMapping("/sync-back")
+    public String syncEventsBack() {
+        try {
+            this.calendarFetchService.syncGoogleEventsToDatabase();
+            return "Successfully synced events to database!";
         } catch (Exception e) {
             return "Failed: " + e;
         }
