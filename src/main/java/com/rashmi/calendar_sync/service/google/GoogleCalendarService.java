@@ -10,6 +10,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +20,14 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Service
 public class GoogleCalendarService {
 
+    public static final String PRIMARY_CALENDAR_ID = "primary";
     private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR);
     private static final GsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
@@ -62,6 +66,27 @@ public class GoogleCalendarService {
         return new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName(applicationName)
                 .build();
+    }
+
+    /**
+     * get all calendars from the google calendar account. this includes
+     * primary calendar
+     * secondary calendars
+     * and custom calendars
+     * @return
+     * @throws Exception
+     */
+    public List<CalendarListEntry> getAllCalendars() throws Exception {
+        Calendar.CalendarList.List request = this.getCalendarService().calendarList().list();
+        List<CalendarListEntry> allCalendars = new ArrayList<>();
+
+        do {
+            CalendarList calendarList = request.execute();
+            allCalendars.addAll(calendarList.getItems());
+            request.setPageToken(calendarList.getNextPageToken());
+        } while (request.getPageToken() != null);
+
+        return allCalendars;
     }
 
 }

@@ -53,11 +53,13 @@ public class CalendarSyncService {
                     .setTimeZone(event.getTimeZone());
             googleEvent.setEnd(end);
 
-            googleEvent = calendarService.events().insert("primary", googleEvent).execute();
+            // we insert events to primary google calendar
+            googleEvent = calendarService.events().insert(GoogleCalendarService.PRIMARY_CALENDAR_ID, googleEvent).execute();
 
             // Mark as synced
             event.setSyncedWithCalendar(true);
             eventRepository.save(event);
         }
     }
+
 }

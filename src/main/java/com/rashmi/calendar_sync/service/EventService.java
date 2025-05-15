@@ -62,4 +62,5 @@ public class EventService {
     public String deleteEvent(Long id) {
         return "we do not support event delete!";
     }
+
 }
