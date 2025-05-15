@@ -29,6 +29,9 @@ public class Event {
     @Column(name = "TIMEZONE")
     private String timeZone;
 
+    @Column(name = "calendar_id")
+    private String calendarId;
+
     @Column(name = "SYNCED_WITH_CALENDAR")
     private Boolean syncedWithCalendar = false;
 

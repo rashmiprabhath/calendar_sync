@@ -13,5 +13,6 @@ public class EventResponseDto {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String timeZone;
+    private String calendarId;
     private Boolean syncedWithCalendar;
 }

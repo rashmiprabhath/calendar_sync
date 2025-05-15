@@ -14,6 +14,7 @@ public class EventResponseMapper {
         responseDto.setDescription(event.getDescription());
         responseDto.setStartTime(event.getStartTime());
         responseDto.setEndTime(event.getEndTime());
+        responseDto.setCalendarId(event.getCalendarId());
         responseDto.setSyncedWithCalendar(event.getSyncedWithCalendar());
         return responseDto;
     }
