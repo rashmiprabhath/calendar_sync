@@ -3,12 +3,16 @@ package com.rashmi.calendar_sync.service.google;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.Events;
 import com.rashmi.calendar_sync.entity.Event;
 import com.rashmi.calendar_sync.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -60,4 +64,33 @@ public class CalendarSyncService {
             eventRepository.save(event);
         }
     }
+
+    public List<Event> getEventsFromGoogleCalendar(LocalDateTime start, LocalDateTime end) throws Exception {
+        DateTime timeMin = new DateTime(Timestamp.valueOf(start));
+        DateTime timeMax = new DateTime(Timestamp.valueOf(end));
+
+        Events events = googleCalendarService.getCalendarService().events().list("primary")
+                .setTimeMin(timeMin)
+                .setTimeMax(timeMax)
+                .setOrderBy("startTime")
+                .setSingleEvents(true)
+                .execute();
+
+        return events.getItems().stream().map(this::mapGoogleEventToMyEvent).toList();
+    }
+
+    private Event mapGoogleEventToMyEvent(com.google.api.services.calendar.model.Event googleEvent) {
+        DateTime start = googleEvent.getStart().getDateTime();
+        DateTime end = googleEvent.getEnd().getDateTime();
+
+        Event event = new Event();
+        event.setTitle(googleEvent.getSummary());
+        event.setDescription(googleEvent.getDescription());
+        event.setStartTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(start.getValue()), ZoneId.systemDefault()));
+        event.setEndTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(end.getValue()), ZoneId.systemDefault()));
+        event.setTimeZone(googleEvent.getStart().getTimeZone() != null ? googleEvent.getStart().getTimeZone() : defaultTimeZone);
+        event.setSyncedWithCalendar(true);
+        return event;
+    }
+
 }
